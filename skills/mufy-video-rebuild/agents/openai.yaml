@@ -1,0 +1,8 @@
+interface:
+  display_name: "MUFY 视频高保真复现"
+  short_description: "从参考视频完整复现界面，重新生成图片并交付 MUFY 代码与填写说明"
+  default_prompt: "使用 $mufy-video-rebuild 识别这段参考视频，完整保留页面元素与交互，重新生成图片，交付可写入 MUFY 的代码和逐项填写说明。"
+  icon_small: "./assets/icon.svg"
+  icon_large: "./assets/icon.svg"
+policy:
+  allow_implicit_invocation: true
