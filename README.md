@@ -1,0 +1,95 @@
+# MUFY 视频高保真复现
+
+把参考录屏、视频或截图转成可写入 MUFY 的完整页面、动态正则和逐框填写说明。
+
+核心要求：**图片原创替换，页面完整保留。** 按录屏逐项核对页面结构、图片数量、视频、评论、音乐、导航、弹窗、装饰与交互，不擅自简化或改成另一套设计。
+
+## 包含什么
+
+- [技能入口](skills/mufy-video-rebuild/SKILL.md)：从识别视频、生成素材、实现网页到 MUFY 安装与验收的完整流程。
+- [保真规范](skills/mufy-video-rebuild/references/fidelity-contract.md)：时间轴、页面与元素清单、素材映射、数量和视觉验收。
+- [MUFY 交付规范](skills/mufy-video-rebuild/references/mufy-delivery.md)：固定小剧场、动态正则、角色字段、全局美化及填写说明。
+- [视频取帧工具](skills/mufy-video-rebuild/scripts/inspect_video.py)：原分辨率截图、时间戳、联系图及元数据。
+- [静态检查工具](skills/mufy-video-rebuild/scripts/audit_bundle.py)：元素数量、素材对应、资源路径和待验证项检查。
+
+## 安装与使用
+
+将本仓库地址交给支持自定义 `SKILL.md` 技能的 AI 客户端，并说明：
+
+> 请安装这个仓库中 `skills/mufy-video-rebuild` 文件夹里的技能，保留其 references、scripts、agents 和 assets 目录。
+
+也可以下载仓库，将整个 `skills/mufy-video-rebuild` 文件夹导入或放入客户端指定的技能目录。具体导入入口以客户端为准；普通聊天窗口不会仅因看到仓库链接就自动获得安装能力。
+
+安装后上传参考录屏，并使用：
+
+> 使用 $mufy-video-rebuild 完整识别这段视频，重新生成参考图片，不简化页面、媒体或交互，交付可直接写入 MUFY 的完整代码和逐框填写说明。
+
+只想提供截图或接续已有源码也可以。未展示的页面与看不清的文字会被记录为缺口，不能假装已识别。
+
+## 两项默认要求
+
+### 1. 素材原创替换
+
+人物图、头像、背景、视频封面、相册、插画等按槽位重新生成，保持角色一致性、图片数量、比例、裁切与视觉功能。来源可查的项目原创图可继续使用。
+
+视频、音乐、字体和其他素材同样记录原创或授权来源。图片重生不能替代其他素材的来源核查。
+
+### 2. 保留全部内容和交互
+
+先建立带视频时间戳的页面树和元素清单，再制作预览与 MUFY 粘贴版。两版使用同一份内容与素材数据；不能网站完整版丰富、粘贴版缩水。
+
+视频保持视频功能，手机应用保留进入和返回，评论可以展开，相册可以查看。平台确有限制时列出原行为、兼容实现与剩余差异。
+
+## 预期交付
+
+| 文件或内容 | 用途 |
+|---|---|
+| 完整粘贴代码与 HTML 预览 | 安装固定网页并检查内容 |
+| 动态正则与输出设定 | 按需显示每轮最新状态 |
+| 变量对应表与导入文件 | 格式核实后生成，与手填版保持一致 |
+| 角色字段与全局美化 | 明确每个 MUFY 输入框填什么 |
+| 素材清单与元素清单 | 跟踪数量、位置、来源和替换 |
+| 填写指南与验证记录 | 区分独立网页、编辑器和正式角色页的测试结果 |
+
+不需要动态状态或全局美化的项目，不额外添加这些功能。正则默认生成当前回复的新状态卡，旧卡不会自动回写。
+
+## 运行辅助工具
+
+需要 Python 3.10 或更新版本。取帧工具还需要系统可运行 `ffmpeg`、`ffprobe`，以及 Python 的 Pillow。静态检查器只使用 Python 标准库。
+
+在仓库根目录安装 Python 依赖：
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+初步取帧与补充指定时间点：
+
+```bash
+python3 skills/mufy-video-rebuild/scripts/inspect_video.py reference.mp4 --out work/inspection --interval 2
+python3 skills/mufy-video-rebuild/scripts/inspect_video.py reference.mp4 --out work/inspection --times 3.2,7.8,12.1
+```
+
+长视频超过默认帧数时，工具会要求调整间隔或明确提高 `--max-frames`，不会默默丢掉视频尾部。
+
+根据[清单格式](skills/mufy-video-rebuild/references/fidelity-contract.md)创建项目清单，然后检查完整导出片段：
+
+```bash
+python3 skills/mufy-video-rebuild/scripts/audit_bundle.py --inventory work/inventory.json --html work/MUFY.html --assets work/assets-manifest.json
+```
+
+完成各项验收记录后，在命令末尾加 `--strict`，将待验证项和未解决差异也作为未通过。退出码：`0` 为当前检查通过，`1` 为静态错误，`2` 为严格模式存在待验证项或差异。
+
+静态脚本不能证明视觉一致、交互有效或 MUFY 内媒体可播，仍需逐页对照和实际点击测试。
+
+## 环境能力
+
+这是供 AI 客户端执行的技能与辅助脚本。识别画面需要视觉能力；制作原创素材需要对应图像/视频生成能力；在线预览、公开媒体托管和 MUFY 正式页测试需要客户端提供相应能力与访问权限。
+
+技能不会凭空提供生成服务、托管或账号权限。没有正式页实测时，交付说明必须写明未实测。
+
+## 共享范围与许可
+
+仓库仅包含通用技能说明、辅助脚本和自绘图标。具体项目的参考视频、角色图片、音乐、聊天记录和账号信息不随仓库发布。
+
+代码和技能文本采用 [MIT License](LICENSE)。第三方素材不因使用本技能而自动获得授权。MUFY 为其各自权利人的名称，本项目独立维护。
